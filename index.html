@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SendEase - Minimal Email Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="script.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #f1f5f9;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .builder-container {
+            min-height: calc(100vh - 120px);
+        }
+        
+        .email-section {
+            cursor: move;
+            transition: all 0.2s ease;
+            border: 2px dashed transparent;
+        }
+        
+        .email-section:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .email-section.dragging {
+            opacity: 0.5;
+            border-color: var(--primary-color);
+        }
+        
+        .email-section.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        
+        .content-editable {
+            min-height: 20px;
+            outline: none;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        .content-editable:focus {
+            background-color: white;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        
+        .preview-container {
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        
+        .mobile-preview {
+            max-width: 375px;
+            margin: 0 auto;
+            border: 8px solid #1e293b;
+            border-radius: 24px;
+        }
+        
+        .draggable-item {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        
+        .draggable-item:hover {
+            background-color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-900">SendEase</h1>
+            <div class="space-x-3">
+                <button id="preview-mode" class="px-3 py-1.5 rounded text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+                    Preview
+                </button>
+                <button id="export-html" class="px-3 py-1.5 rounded text-sm text-white bg-gray-800 hover:bg-gray-700">
+                    Export
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex builder-container">
+        <!-- Components Panel -->
+        <div class="w-64 bg-white border-r border-gray-200 p-4">
+            <h2 class="text-md font-medium text-gray-700 mb-3">Components</h2>
+            <div class="space-y-2">
+                <div class="draggable-item p-2 border border-gray-100 rounded" draggable="true" data-type="text">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Text Block</span>
+                    </div>
+                </div>
+                <div class="draggable-item p-3 border border-gray-200 rounded-md" draggable="true" data-type="button">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6a2 2 0 012 2v10a2 2 0 01-2 2H9a2 2 0 01-2-2V7a2 2 0 012-2z" />
+                        </svg>
+                        <span>Button</span>
+                    </div>
+                </div>
+                <div class="draggable-item p-3 border border-gray-200 rounded-md" draggable="true" data-type="image">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>Image</span>
+                    </div>
+                </div>
+                <div class="draggable-item p-3 border border-gray-200 rounded-md" draggable="true" data-type="divider">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m-7-7h14" />
+                        </svg>
+                        <span>Divider</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Builder Area -->
+        <div class="flex-1 p-8 overflow-auto">
+            <div class="preview-controls mb-4 flex space-x-4">
+                <button id="desktop-view" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium bg-gray-100 text-gray-700">Desktop</button>
+                <button id="mobile-view" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700">Mobile</button>
+            </div>
+
+            <div id="email-preview" class="preview-container">
+                <div id="email-content" class="p-6">
+                    <!-- Email content will be built here -->
+                </div>
+            </div>
+
+            <div id="empty-state" class="text-center py-8 text-gray-400">
+                <svg class="mx-auto h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                </svg>
+                <h3 class="mt-2 text-sm text-gray-600">Start building</h3>
+                <p class="mt-1 text-xs">Drag components from the panel</p>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="w-64 bg-white border-l border-gray-200 p-4">
+            <h2 class="text-md font-medium text-gray-700 mb-3">Settings</h2>
+            <div id="settings-content" class="text-gray-500 text-xs">
+                <div class="border-b pb-2 mb-2 text-gray-400">Select component to edit</div>
+            </div>
+        </div>
+    </div>
+
+ 
+</body>
+</html>
